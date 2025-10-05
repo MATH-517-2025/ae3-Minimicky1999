@@ -1,0 +1,653 @@
+---
+title: "MATH-517: Assignment 3"
+author: "Micaela Puzone"
+date: '2025-10-5'
+format: pdf
+editor: visual
+---
+
+## Theoretical exercise
+
+### Local Linear Regression as a Linear Smoother
+
+We are given i.i.d samples $(x_i, y_i), \, i=1,\dots,n$ from the regression model
+
+$$
+y_i = m(x_i) + \varepsilon_i, \quad i=1,\dots,n
+$$
+
+where the predictors are one-dimensional and $\mathbb{E}[\varepsilon_i]=0$.\
+The goal is to estimate the regression function $m$ and show that $\hat m$ is a linear smoother as seen in the course.
+
+### 1.1 Weighted average representation
+
+We show that $\hat m(x)$ can be expressed as a weighted average of the observations:
+
+$$
+\hat m(x) = \sum_{i=1}^n w_{ni}(x) Y_i,
+$$
+
+where the weights $w_{ni}(x)$ depend only on $x, X_i, K$ and $h$, but not on the $Y_i$'s.
+
+We consider the weighted least squares problem
+
+$$
+(\hat \beta_0(x), \hat \beta_1(x)) 
+= \arg\min_{\beta_0,\beta_1} \sum_{i=1}^n 
+\big( Y_i - \beta_0 - \beta_1(X_i-x) \big)^2 K\!\left(\frac{X_i-x}{h}\right).
+$$
+
+Notations:
+
+-   Let $Z$ be the $n \times 2$ design matrix with rows $z_i^T = (1, X_i - x)$.\
+-   Let $W = \mathrm{diag}\!\left( K\!\left(\tfrac{X_1-x}{h}\right), \dots, K\!\left(\tfrac{X_n-x}{h}\right)\right)$.\
+-   Let $Y = (Y_1,\dots,Y_n)^T$.
+
+Then the weighted least squares solution is
+
+$$
+\hat \beta(x) = (\hat \beta_0(x), \hat \beta_1(x))^T 
+= (Z^T W Z)^{-1} Z^T W Y.
+$$
+
+The fitted value at $x$ is
+
+$$
+\hat m(x) = \hat \beta_0(x) = e_1^T \hat \beta(x) 
+= e_1^T (Z^T W Z)^{-1} Z^T W Y,
+$$
+
+where $e_1 = (1,0)^T$.
+
+Hence
+
+$$
+\hat m(x) = e_1^T (Z^T W Z)^{-1} Z^T W Y 
+= \sum_{i=1}^n \Big[ e_1^T (Z^T W Z)^{-1} Z^T W \Big]_i Y_i,
+$$
+
+so that
+
+$$
+\hat m(x) = \sum_{i=1}^n w_{ni}(x) Y_i,
+$$
+
+with weights
+
+$$
+w_{ni}(x) =\Big[ e_1^T (Z^T W Z)^{-1} Z^T W \Big]_i
+$$
+
+which depend only on $x, X_i, K$ and $h$ as desired.
+
+### 1.2 Explicit expression for the weights
+
+We use the notation
+
+$$
+S_{n,k}(x) = \frac{1}{nh} \sum_{i=1}^n (X_i-x)^k K\!\left(\frac{X_i-x}{h}\right), \quad k=0,1,2
+$$
+
+to derive an explicit expression for $w_{ni}(x)$ in terms of $S_{n,0}(x), S_{n,1}(x), S_{n,2}(x)$, and the kernel.
+
+Set $k_i := K\!\left(\frac{X_i-x}{h}\right)$ and observe that\
+$$
+Z=
+\begin{pmatrix}
+1 & X_1-x\\
+1 & X_2-x\\
+\vdots & \vdots\\
+1 & X_n-x
+\end{pmatrix},
+\qquad
+W=\operatorname{diag}(k_1,\dots,k_n).
+$$\
+$$
+Z^T W Z
+=
+\begin{pmatrix}
+1 & \cdots & 1\\
+X_1-x & \cdots & X_n-x
+\end{pmatrix}
+\begin{pmatrix}
+k_1 & & 0\\
+& \ddots & \\
+0 & & k_n
+\end{pmatrix}
+\begin{pmatrix}
+1 & X_1-x\\
+\vdots & \vdots\\
+1 & X_n-x
+\end{pmatrix}.
+$$ $$
+=
+\begin{pmatrix}
+\sum_{i=1}^n k_i & \sum_{i=1}^n (X_i-x)k_i\\[4pt]
+\sum_{i=1}^n (X_i-x)k_i & \sum_{i=1}^n (X_i-x)^2 k_i
+\end{pmatrix}.
+$$
+
+So if we denote $s_k := \sum_{i=1}^n (X_i-x)^k k_i = nh\,S_{n,k}(x),\qquad k=0,1,2,$ we obtain\
+$$
+Z^T W Z =
+\begin{pmatrix}
+s_0 & s_1\\
+s_1 & s_2
+\end{pmatrix},
+\qquad
+(Z^T W Z)^{-1}
+= \frac{1}{s_0 s_2 - s_1^2}
+\begin{pmatrix}
+s_2 & -s_1\\
+-s_1 & s_0
+\end{pmatrix}.
+$$
+
+Moreover, $$
+Z^T W
+=
+\begin{pmatrix}
+1 & \cdots & 1\\
+X_1-x & \cdots & X_n-x
+\end{pmatrix}
+\!
+\begin{pmatrix}
+k_1 & & 0\\
+& \ddots & \\
+0 & & k_n
+\end{pmatrix}
+=
+\begin{pmatrix}
+k_1 & k_2 & \cdots & k_n\\
+(X_1-x)k_1 & (X_2-x)k_2 & \cdots & (X_n-x)k_n
+\end{pmatrix}.
+$$
+
+Therefore, $$
+w_{ni}(x)
+=
+\Bigg[
+(1,0)\;
+\frac{1}{s_0 s_2 - s_1^2}
+\begin{pmatrix}
+s_2 & -s_1\\
+-s_1 & s_0
+\end{pmatrix}
+\!
+\begin{pmatrix}
+k_1 & \cdots & k_n\\
+(x_1-x)k_1 & \cdots & (x_n-x)k_n
+\end{pmatrix}
+\Bigg]_i
+$$
+
+$$
+= \Bigg[ \frac{1}{s_0 s_2 - s_1^2}
+\begin{pmatrix}
+s_2 k_i - s_1 (X_1-x) k_i & \cdots  &
+s_n k_n - s_1 (X_n-x) k_n 
+\end{pmatrix}
+\Bigg]_i
+$$
+
+The weight associated to observation $i$ is therefore $$
+w_{ni}(x) = \frac{1}{s_0 s_2 - s_1^2} \Big( s_2 K\!\left(\tfrac{X_i-x}{h}\right) - s_1 (X_i-x) K\!\left(\tfrac{X_i-x}{h}\right) \Big)
+$$
+
+$$
+= \frac{ nh\, S_{n,2}(x)\, K\!\left(\tfrac{X_i-x}{h}\right) - nh\, S_{n,1}(x)(X_i-x)K\!\left(\tfrac{X_i-x}{h}\right) }
+{ nh\, S_{n,0}(x)nh\, S_{n,2}(x) - n^2 h^2\, (S_{n,1}(x))^2 }
+$$
+
+$$
+= \frac{1}{nh} \, \frac{ K\!\left(\tfrac{X_i-x}{h}\right)\, \big( S_{n,2}(x) - (X_i-x)S_{n,1}(x) \big) }
+{ S_{n,0}(x) S_{n,2}(x) - (S_{n,1}(x))^2 }.
+$$
+
+### 1.3 Normalization property
+
+Summing over all $i$,
+
+$$
+\sum_{i=1}^n w_{ni}(x) 
+= \frac{1}{s_0 s_2 - s_1^2} \Big[ s_2 \sum_{i=1}^n K\!\left(\tfrac{X_i-x}{h}\right) - s_1 \sum_{i=1}^n (X_i-x) K\!\left(\tfrac{X_i-x}{h}\right) \Big].
+$$
+
+But
+
+$$
+\sum_{i=1}^n K\!\left(\tfrac{X_i-x}{h}\right) = s_0, 
+\qquad
+\sum_{i=1}^n (X_i-x) K\!\left(\tfrac{X_i-x}{h}\right) = s_1,
+$$
+
+so
+
+$$
+\sum_{i=1}^n w_{ni}(x) 
+= \frac{1}{s_0 s_2 - s_1^2} (s_2 s_0 - s_1 s_1) = 1.
+$$
+
+Therefore, the weights always sum to one.
+
+## Practical exercise
+
+Before turning to the simulation study, let us recall the connection with the theoretical part.\
+The AMISE-optimal bandwidth $h_{AMISE}$ depends on two unknown quantities, the variance $\sigma^2$ and the curvature term $\theta_{22}$.\
+In practice, we estimate them using blockwise polynomial fits, and we select the number of blocks $N$ via Mallow’s $C_p$ criterion.\
+The goal of the practical part is to study how $h_{AMISE}$ behaves when changing the key parameters: the sample size $n$, the block number $N$, and the distributional parameters $(\alpha,\beta)$ of the Beta covariates.\
+All results are obtained from the interactive Shiny App (`app.R`), which implements the core functions coded in `functions.R` and provides an immediate visualization of how the estimated quantities and $h_{AMISE}$ evolve when changing the parameters.\
+Below we discuss the main plots and observations.
+
+### Summary Table
+
+The summary tab of the App reports the used number of blocks (either set manually or selected via the $C_p$ criterion), together with the estimates $\hat\sigma^2$ and $\hat\theta_{22}$, and the corresponding $h_{AMISE}$.\
+From these results, we observe that increasing $N$ tends to increase $\hat\theta_{22}$, which in turn reduces $h_{AMISE}$.\
+This is expected because with very few blocks, the piecewise polynomials oversmooth and underestimate curvature, leading to a larger bandwidth. As $N$ grows, curvature is captured more accurately and the estimated optimal bandwidth becomes smaller.\
+The $C_p$ criterion is designed to balance this trade-off between bias (too few blocks) and variance (too many blocks).
+
+### Bandwidth vs Number of Blocks
+
+The plot of $h_{AMISE}$ against the number of blocks $N$ shows a clear monotone decrease:\
+as $N$ increases from 1 to 5, the estimated bandwidth becomes smaller.
+
+This behavior is explained by the role of $\hat\theta_{22}$ in the formula $$
+h_{AMISE} = n^{-1/5} \left(\frac{35 \, \hat\sigma^2 \, |supp(X)|}{\hat\theta_{22}}\right)^{1/5}.
+$$
+
+With very few blocks, the piecewise polynomials cover large regions of the support and tend to oversmooth, which underestimates the curvature $\hat\theta_{22}$.\
+Since $h_{AMISE}$ is inversely related to $\hat\theta_{22}$, this results in an inflated bandwidth.\
+As $N$ increases, the fits become more local and capture more curvature, so $\hat\theta_{22}$ increases and $h_{AMISE}$ decreases accordingly.
+
+In theory, if $N$ were pushed much higher or $n$ were smaller, one could expect unstable estimates of $\hat\sigma^2$ and $\hat\theta_{22}$ due to very few observations per block.\
+However, in our App $N$ is restricted to at most 5 and the sample sizes are relatively large, so each block remains well populated and the estimates are stable.\
+As a result, the dominant effect observed in the App is the monotone decrease of $h_{AMISE}$ with $N$.
+
+### Bandwidth vs Sample Size
+
+The App also allows us to vary the sample size $n$ and visualize the resulting $h_{AMISE}$.\
+We observe that the bandwidth decreases as $n$ increases, in line with the theoretical rate
+
+$$
+  h_{AMISE} \propto n^{-1/5}.
+$$
+
+This illustrates the classical bias–variance trade-off: with more data, we can afford to use a narrower bandwidth, thereby reducing bias while keeping variance under control.\
+It also explains why the optimal number of blocks $N$ naturally depends on $n$: larger samples allow a finer partitioning of the support while still maintaining enough observations per block for stable estimation.
+
+### Effect of the Beta Distribution
+
+Two additional plots in the App focus on the role of the distribution of $X \sim \text{Beta}(\alpha,\beta)$.\
+The first shows the empirical distribution of $X$, while the second displays $h_{AMISE}$ across different $(\alpha,\beta)$ values.
+
+The shape of the Beta distribution clearly influences the estimated bandwidth.\
+When $\alpha$ or $\beta$ is small, the distribution becomes highly skewed and most of the observations concentrate near the boundaries of the support, leaving other regions with relatively few points.\
+In theory, such imbalanced designs can create problems: blocks that contain very few observations provide unstable polynomial fits, which in turn affect the estimates of $\hat\sigma^2$ and $\hat\theta_{22}$.
+
+In practice, however, our implementation always fits a polynomial as long as there are at least six points in a block.\
+As a result, the App never shows empty or grey regions: the fits are produced everywhere, even in low-density areas.\
+This makes the visual output smooth and continuous, but it also hides the fact that estimates in these regions may be fragile, since they rely on very limited information.
+
+Overall, the plots confirm that the covariate distribution has a strong impact on $h_{AMISE}$.\
+Highly skewed Beta distributions amplify the risk of poorly estimated curvature and variance, even though the App construction ensures that a fit is always returned.
+
+### Data and Fit
+
+The last plot in the App compares the simulated data with the true regression function $m(x)$ (blue line) and the blockwise polynomial fit (red line).
+
+When the number of blocks $N$ is small, the fitted polynomial curves oversmooth and fail to capture the oscillatory shape of the true regression function. Increasing $N$ improves the fit, as the polynomials become more local and can adapt better to the curvature of $m(x)$.\
+However, the quality of the fit also depends on the number of observations within each block.\
+With the relatively large sample sizes considered in the App and the cap of $N \leq 5$, each block still contains enough data for stable estimation, so we do not observe extreme instability.
+
+This visualization provides a clear confirmation of the bias–variance trade-off:\
+- too few blocks lead to biased, overly smooth fits,\
+- too many blocks could lead to unstable variance estimates if $n$ were smaller.
+
+In our setting, the App illustrates how the $C_p$ criterion automatically selects a reasonable value of $N$ that balances these two effects.
+
+## Conclusions
+
+Through the Shiny App exploration, we investigated how the AMISE-optimal bandwidth $h_{AMISE}$ depends on key factors:\
+the block number $N$, the sample size $n$, and the distribution of the covariates $(\alpha,\beta)$.
+
+The main findings are as follows:
+
+-   **Effect of** $N$: Increasing the number of blocks reduces $h_{AMISE}$ in our simulations, as more curvature is captured through $\hat\theta_{22}$. For small $N$, the estimator oversmooths and overestimates the bandwidth, while larger $N$ values provide more flexibility. In practice, $C_p$ provides a principled compromise between bias and variance.
+
+-   **Effect of** $n$: The bandwidth decreases with larger sample sizes, consistent with the theoretical rate $h_{AMISE} \propto n^{-1/5}$. With more observations, narrower bandwidths can be used while controlling variance.
+
+-   **Effect of the Beta distribution:** The parameters $(\alpha,\beta)$ strongly influence the density of the covariates. Highly skewed Beta distributions produce regions with few observations, where estimates are less reliable. In our implementation, however, a fit is always produced as long as minimal data are available, so these weaknesses are not directly visible in the App.
+
+-   **Data and fit:** Visual comparison between the true function and the blockwise polynomial fit highlights the bias–variance trade-off. Too few blocks lead to overly smooth fits that miss local features, while too many blocks could in principle cause instability. The $C_p$ criterion balances these effects and selects a reasonable value of $N$.
+
+Overall, the Shiny App provides an intuitive and interactive way to understand the trade-offs in bandwidth selection.\
+It confirms the theoretical predictions while also illustrating practical issues related to the number of blocks, sample size, and covariate distribution.
+
+All these results can be reproduced and explored interactively in the Shiny App (`app.R`).\
+The code of the App as well as the functions used for the simulations (`functions.R`) are included below to ensure full reproducibility.
+
+```{r}
+#| echo: false
+#| results: hide
+#| message: false
+#| warning: false
+
+# shiny app
+
+library(shiny)
+library(ggplot2)
+
+# Import functions
+source("functions.R")
+
+ui <- fluidPage(
+  titlePanel("AMISE Bandwidth Selection — Simulation Study"),
+  sidebarLayout(
+    sidebarPanel(
+      sliderInput("n", "Sample size n", min = 50, max = 5000, value = 3000, step = 50),
+      sliderInput("alpha", "Beta parameter α", min = 0.1, max = 8, value = 2, step = 0.5),
+      sliderInput("beta", "Beta parameter β", min = 0.1, max = 8, value = 2, step = 0.5),
+      sliderInput("sigma2", "Error variance σ²", min = 0.1, max = 3, value = 1, step = 0.1),
+      checkboxInput("useOptN", "Use optimal number of blocks (via Cp criterion)", TRUE),
+      uiOutput("Nchoice"),
+      hr(),
+      sliderInput("n_min", "Minimum sample size (for h vs n curve)", min = 50, max = 2000, value = 200, step = 100),
+      sliderInput("n_max", "Maximum sample size (for h vs n curve)", min = 200, max = 5000, value = 2000, step = 100),
+      numericInput("n_step", "Sample size step", value = 200, min = 50, step = 50)
+    ),
+    mainPanel(
+      tabsetPanel(
+        tabPanel("Summary", tableOutput("summary")),
+        tabPanel("h vs N", plotOutput("plot_hN")),
+        tabPanel("h vs n", plotOutput("plot_hn")),
+        tabPanel("Beta & h_AMISE", 
+                 fluidRow(
+                   column(12, plotOutput("plot_beta", height = "400px")),
+                 ),
+                 fluidRow(
+                   column(12, plotOutput("plot_hBeta", height = "400px"))  
+                 )
+        ),
+        
+        tabPanel("Data & Fit", plotOutput("plot_datafit"))
+      )
+    )
+  )
+)
+
+server <- function(input, output, session) {
+  
+  # Reactive data
+  dat <- reactive({
+    simulate_data(input$n, input$alpha, input$beta, input$sigma2)
+  })
+  
+  # N choice
+  output$Nchoice <- renderUI({
+    Nmax <- max(min(floor(input$n/20), 5), 1)
+    if (input$useOptN) {
+      helpText(paste("N_max =", Nmax))
+    } else {
+      sliderInput("N", "Number of blocks (N)", min = 1, max = Nmax, value = Nmax, step = 1)
+    }
+  })
+  
+  # Summary: N_opt or chosen N
+  output$summary <- renderTable({
+    X <- dat()$X; Y <- dat()$Y
+    if (input$useOptN) {
+      opt <- optimal_N(X, Y)
+      est <- blockwise_fit(X, Y, opt$N_opt)
+      data.frame(N_used = opt$N_opt,
+                 Cp_value = round(opt$Cp_opt,3),
+                 sigma2_hat = round(est$sigma2,3),
+                 theta22_hat = round(est$theta22,3),h_AMISE = round(h_amise(input$n, est$sigma2, est$theta22),3))
+    } else {
+      est <- blockwise_fit(X, Y, input$N)
+      data.frame(N_used = input$N,
+                 sigma2_hat = round(est$sigma2,3),
+                 theta22_hat = round(est$theta22,3),
+                 h_AMISE = round(h_amise(input$n, est$sigma2, est$theta22),3))
+    }
+  })
+  
+  # h vs N
+  output$plot_hN <- renderPlot({
+    X <- dat()$X; Y <- dat()$Y
+    n <- length(Y)
+    Nmax <- max(min(floor(n/20), 5), 1)
+    h_vals <- sapply(1:Nmax, function(N) {
+      est <- blockwise_fit(X, Y, N)
+      h_amise(n, est$sigma2, est$theta22)
+    })
+    opt <- optimal_N(X, Y)
+    
+    ggplot(data.frame(N=1:Nmax, h=h_vals), aes(N, h)) +
+      geom_line() + geom_point() +
+      geom_vline(xintercept = opt$N_opt, linetype = 2, color="green") +
+      annotate("text", x = opt$N_opt, y = max(h_vals, na.rm=TRUE),
+               label = "N optimal", vjust = -0.5, hjust = 0, color="green") +
+      labs(title="h_AMISE vs N", y="h_AMISE", x="Number of blocks (N)") +
+      theme_minimal()
+    
+  })
+  
+  
+  # h vs n
+  output$plot_hn <- renderPlot({
+    n_seq <- seq(input$n_min, input$n_max, by=input$n_step)
+    h_vals <- sapply(n_seq, function(n){
+      d <- simulate_data(n, input$alpha, input$beta, input$sigma2)
+      if (input$useOptN) {
+        opt <- optimal_N(d$X, d$Y)
+        est <- blockwise_fit(d$X, d$Y, opt$N_opt)
+      } else {
+        N <-input$N
+        est <- blockwise_fit(d$X, d$Y, N)
+      }
+      h_amise(n, est$sigma2, est$theta22)
+    })
+    ggplot(data.frame(n=n_seq, h=h_vals), aes(n,h)) +
+      geom_line() + geom_point() +
+      labs(title="h_AMISE vs sample size n", y="h_AMISE") +
+      theme_minimal()
+  })
+  
+  #Beta distribution
+  output$plot_beta <- renderPlot({
+    X <- rbeta(5000, input$alpha, input$beta)
+    
+    ggplot(data.frame(X), aes(X)) +
+      geom_histogram(bins=10, fill="skyblue", color="black") +
+      labs(title=paste0("Beta(", input$alpha, ", ", input$beta, ") distribution"),
+           x="x", y="Density") +
+      theme_minimal()
+  })
+  
+  
+  # h vs (alpha, beta)
+  output$plot_hBeta <- renderPlot({
+    alpha_seq <- seq(0.1,8,by=1)
+    beta_seq  <- seq(0.1,8,by=1)
+    grid <- expand.grid(alpha=alpha_seq, beta=beta_seq)
+    
+    h_vals <- apply(grid, 1, function(p){
+      d <- simulate_data(input$n, p[1], p[2], input$sigma2)
+      if (input$useOptN) {
+        opt <- optimal_N(d$X,d$Y)
+        est <- blockwise_fit(d$X,d$Y,opt$N_opt)
+      } else {
+        est <- blockwise_fit(d$X,d$Y,input$N)
+      }
+      h_amise(input$n, est$sigma2, est$theta22)
+    })
+    
+    grid$h <- h_vals
+    
+    ggplot(grid, aes(alpha, beta, fill=h)) +
+      geom_tile() +
+      scale_fill_viridis_c() +
+      labs(title="h_AMISE across (alpha, beta)", 
+           x=expression(alpha), y=expression(beta), fill="h") +
+      theme_minimal()
+  })
+  
+  
+  # Data & Fit
+  output$plot_datafit <- renderPlot({
+    d <- dat()
+    if (input$useOptN) {
+      opt <- optimal_N(d$X,d$Y)
+      N <- opt$N_opt
+    } else {
+      N <- input$N
+    }
+    fit <- blockwise_fit(d$X,d$Y,N)
+    
+    # Grid for polynomial fits
+    xs <- seq(0,1,length.out=200)
+    block_id <- cut(xs, breaks=seq(0,1,length.out=N+1), include.lowest=TRUE, labels=FALSE)
+    yhat <- numeric(length(xs))
+    for (j in 1:N) {
+      idx <- which(block_id==j)
+      df <- data.frame(x=d$X[d$X>=min(xs[idx]) & d$X<=max(xs[idx])], y=d$Y[d$X>=min(xs[idx]) & d$X<=max(xs[idx])])
+      if(nrow(df)>=6){
+        f <- lm(y ~ x + I(x^2)+I(x^3)+I(x^4), data=df)
+        yhat[idx] <- predict(f, newdata=data.frame(x=xs[idx]))
+      } else {
+        yhat[idx] <- NA
+      }
+    }
+    ggplot(d, aes(X,Y)) +
+      geom_point(alpha=0.4) +
+      stat_function(fun=m_true, colour="blue", size=1) +
+      geom_line(data=data.frame(x=xs,y=yhat), aes(x,y), colour="red") +
+      labs(title=paste("Data with true m(x) and blockwise fit (N=",N,")"), y="Y") +
+      theme_minimal()
+  })
+}
+
+shinyApp(ui, server)
+
+```
+
+```{r}
+#| echo: false
+#| results: hide
+#| message: false
+#| warning: false
+
+#function.R
+#Core functions for bandwidth selection project
+
+
+# =======================================================
+# 1. Regression function m(x)
+# =======================================================
+m_true <- function(x) {
+  sin(1 / (x/3 + 0.1))
+}
+
+# =======================================================
+# 2. Data generation
+# =======================================================
+simulate_data <- function(n, alpha, beta, sigma2) {
+  set.seed(123) #for reproducibility
+  X <- rbeta(n, alpha, beta)
+  m <- m_true(X)
+  Y <- m + rnorm(n, mean = 0, sd = sqrt(sigma2))
+  data.frame(X = X, Y = Y)
+}
+
+# =======================================================
+# 3. Blockwise polynomial fitting (degree 4)
+# =======================================================
+blockwise_fit <- function(X, Y, N) {
+  n <- length(Y)
+  block_id <- cut(X, breaks = seq(0, 1, length.out = N+1), labels = FALSE, 
+                  include.lowest = TRUE)
+  
+  # Storage
+  second_deriv_sq <- numeric(n)
+  residuals_sq <- numeric(n)
+  RSS_total <- 0
+  
+  for (j in 1:N) {
+    idx <- which(block_id == j)
+    if (length(idx) < 6) next  # need at least 6 obs for non null residual
+    
+    # Fit polynomial of degree 4
+    df <- data.frame(x = X[idx], y = Y[idx])
+    fit <- lm(y ~ x + I(x^2) + I(x^3) + I(x^4), data = df)
+    
+    # Second derivative: m''(x) = 2 b2 + 6 b3 x + 12 b4 x^2
+    b <- coef(fit)
+    sec_deriv <- 2*b["I(x^2)"] + 6*b["I(x^3)"]*X[idx] + 12*b["I(x^4)"]*X[idx]^2
+    second_deriv_sq[idx] <- sec_deriv^2
+    
+    
+    # Residuals
+    res <- residuals(fit)
+    residuals_sq[idx] <- res^2
+    RSS_total <- RSS_total + sum(res^2)
+  }
+  
+  # Estimates
+  theta22_hat <- mean(second_deriv_sq, na.rm = TRUE)
+  df_resid <- n - 5*N
+  sigma2_hat <- if (df_resid > 0) sum(residuals_sq, na.rm = TRUE)/df_resid else NA
+  
+  list(theta22 = theta22_hat, sigma2 = sigma2_hat, RSS = RSS_total, df = df_resid)
+}
+
+# =======================================================
+# 4. Bandwidth formula
+# =======================================================
+h_amise <- function(n, sigma2_hat, theta22_hat, support_length = 1) {
+  # AMISE optimal bandwidth:
+  # h_AMISE = n^(-1/5) * ( (35 * sigma^2 * |supp(X)|) / theta22 )^(1/5)
+  if (is.na(sigma2_hat) || is.na(theta22_hat) || theta22_hat <= 0) return(NA)
+  n^(-1/5) * ((35 * sigma2_hat * support_length) / theta22_hat)^(1/5)
+}
+
+# =======================================================
+# 5. Cp(N) criterion and optimal N
+# =======================================================
+cp_table <- function(X, Y) {
+  # Compute Cp(N) for N = 1,...,Nmax
+  # Nmax = max(min(floor(n/20),5),1)
+  n <- length(Y)
+  Nmax <- max(min(floor(n/20), 5), 1)
+  
+  results <- data.frame(N = 1:Nmax, Cp = NA, RSS = NA, df = NA)
+  
+  # First compute RSS(N) for each N
+  for (N in 1:Nmax) {
+    est <- blockwise_fit(X, Y, N)
+    results$RSS[N] <- est$RSS
+    results$df[N]  <- est$df
+  }
+  
+  # Scaling denominator: RSS(Nmax)/(n - 5 Nmax)
+  denom <- results$RSS[results$N == Nmax] / (n - 5*Nmax)
+
+  if (is.na(denom) || denom <= 0) {
+  warning("Invalid denominator in Cp calculation. Returning NA for Cp values.")
+  results$Cp <- NA
+  return(results)
+  }
+
+  # Cp(N) = RSS(N)/denom - (n - 10N)
+  results$Cp <- results$RSS/denom - (n - 10*results$N)
+  
+  results
+}
+
+optimal_N <- function(X, Y) {
+  # Select N_opt = argmin Cp(N)
+  tab <- cp_table(X, Y)
+  best_row <- which.min(tab$Cp)
+  list(N_opt = tab$N[best_row], Cp_opt = tab$Cp[best_row], table = tab)
+}
+
+```
