@@ -291,6 +291,9 @@ This makes the visual output smooth and continuous, but it also hides the fact t
 Overall, the plots confirm that the covariate distribution has a strong impact on $h_{AMISE}$.\
 Highly skewed Beta distributions amplify the risk of poorly estimated curvature and variance, even though the App construction ensures that a fit is always returned.
 
+Moreover, the heatmap shows that $h_{AMISE}$ tends to be larger for very unbalanced Beta distributions (e.g. $\alpha \ll \beta$ or $\beta \ll \alpha$), while it decreases for more balanced or concentrated distributions ($\alpha \approx \beta$).\
+This pattern reflects the sensitivity of the curvature estimation to regions with sparse or non-uniformly distributed data.
+
 ### Data and Fit
 
 The last plot in the App compares the simulated data with the true regression function $m(x)$ (blue line) and the blockwise polynomial fit (red line).
